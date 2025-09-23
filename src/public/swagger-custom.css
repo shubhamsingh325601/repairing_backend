@@ -1,0 +1,309 @@
+/* Modern Swagger UI Styling - FastAPI Inspired */
+
+/* Hide default Swagger topbar */
+.swagger-ui .topbar {
+  display: none !important;
+}
+
+/* Custom header styling */
+.swagger-ui .info {
+  margin: 20px 0 30px 0;
+  padding: 30px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  color: white;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.swagger-ui .info .title {
+  font-size: 2.5em !important;
+  font-weight: 700 !important;
+  margin-bottom: 10px !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.swagger-ui .info .description {
+  font-size: 1.1em !important;
+  line-height: 1.6 !important;
+  opacity: 0.95;
+}
+
+.swagger-ui .info .version {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 20px !important;
+  padding: 5px 15px !important;
+  font-weight: 600 !important;
+}
+
+/* Server selection styling */
+.swagger-ui .servers {
+  margin: 20px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.swagger-ui .servers select {
+  border: 2px solid #667eea;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  background: white;
+}
+
+/* Tag styling */
+.swagger-ui .opblock-tag {
+  margin: 20px 0 10px 0;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  font-size: 1.1em;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.swagger-ui .opblock-tag-section {
+  margin-bottom: 30px;
+}
+
+/* Operation block styling */
+.swagger-ui .opblock {
+  margin: 15px 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: none;
+  overflow: hidden;
+}
+
+.swagger-ui .opblock.opblock-get {
+  border-color: #61affe;
+  background: linear-gradient(135deg, #61affe 0%, #4a90e2 100%);
+}
+
+.swagger-ui .opblock.opblock-post {
+  border-color: #49cc90;
+  background: linear-gradient(135deg, #49cc90 0%, #3fb37f 100%);
+}
+
+.swagger-ui .opblock.opblock-put {
+  border-color: #fca130;
+  background: linear-gradient(135deg, #fca130 0%, #f39c12 100%);
+}
+
+.swagger-ui .opblock.opblock-delete {
+  border-color: #f93e3e;
+  background: linear-gradient(135deg, #f93e3e 0%, #e74c3c 100%);
+}
+
+.swagger-ui .opblock.opblock-patch {
+  border-color: #50e3c2;
+  background: linear-gradient(135deg, #50e3c2 0%, #27ae60 100%);
+}
+
+/* Operation summary styling */
+.swagger-ui .opblock .opblock-summary {
+  padding: 20px;
+  color: white;
+  font-weight: 600;
+}
+
+.swagger-ui .opblock .opblock-summary-method {
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 6px 12px;
+  min-width: 80px;
+  text-align: center;
+}
+
+.swagger-ui .opblock .opblock-summary-path {
+  font-size: 16px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Operation description */
+.swagger-ui .opblock .opblock-description {
+  padding: 20px;
+  background: white;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Try it out button */
+.swagger-ui .try-out__btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 8px 16px !important;
+  color: white !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+}
+
+.swagger-ui .try-out__btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Execute button */
+.swagger-ui .execute-wrapper .btn.execute {
+  background: linear-gradient(135deg, #49cc90 0%, #3fb37f 100%) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 10px 20px !important;
+  color: white !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+}
+
+.swagger-ui .execute-wrapper .btn.execute:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(73, 204, 144, 0.4);
+}
+
+/* Cancel button */
+.swagger-ui .execute-wrapper .btn.btn-cancel {
+  background: #6c757d !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 10px 20px !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+/* Parameter styling */
+.swagger-ui .parameters-container .parameter__name {
+  font-weight: 600;
+  color: #495057;
+}
+
+.swagger-ui .parameters-container .parameter__type {
+  background: #e9ecef;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.swagger-ui .parameters-container .parameter__required {
+  background: #dc3545;
+  color: white;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Response styling */
+.swagger-ui .responses-wrapper .response {
+  margin: 10px 0;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid;
+}
+
+.swagger-ui .responses-wrapper .response.response-200 {
+  background: #d4edda;
+  border-left-color: #28a745;
+}
+
+.swagger-ui .responses-wrapper .response.response-201 {
+  background: #d1ecf1;
+  border-left-color: #17a2b8;
+}
+
+.swagger-ui .responses-wrapper .response.response-400 {
+  background: #f8d7da;
+  border-left-color: #dc3545;
+}
+
+.swagger-ui .responses-wrapper .response.response-401 {
+  background: #fff3cd;
+  border-left-color: #ffc107;
+}
+
+.swagger-ui .responses-wrapper .response.response-404 {
+  background: #f8d7da;
+  border-left-color: #dc3545;
+}
+
+.swagger-ui .responses-wrapper .response.response-500 {
+  background: #f8d7da;
+  border-left-color: #dc3545;
+}
+
+/* Schema styling */
+.swagger-ui .model {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 15px;
+  margin: 10px 0;
+}
+
+.swagger-ui .model-title {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 10px;
+}
+
+/* Authentication styling */
+.swagger-ui .authorization__btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 8px 16px !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+/* General improvements */
+.swagger-ui {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+}
+
+.swagger-ui .scheme-container {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .swagger-ui .info {
+    padding: 20px;
+  }
+  
+  .swagger-ui .info .title {
+    font-size: 2em !important;
+  }
+  
+  .swagger-ui .opblock .opblock-summary {
+    padding: 15px;
+  }
+}
+
+/* Smooth transitions */
+.swagger-ui * {
+  transition: all 0.2s ease;
+}
+
+/* Custom scrollbar */
+.swagger-ui ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.swagger-ui ::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.swagger-ui ::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.swagger-ui ::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
