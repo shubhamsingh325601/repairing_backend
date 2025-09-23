@@ -6,6 +6,8 @@ const Feedback = require("./feedback.route");
 const Agent = require("./agent.route");
 const Payment = require("./payment.route");
 const Comment = require('./comment.route');
+const Chat = require('./chat.route');
+const Admin = require('./admin.route');
 // const Service = require("./service.route");
 
 module.exports = {
@@ -16,5 +18,7 @@ module.exports = {
     Booking,
     Feedback,
     Payment,
-    Comment
+    Comment,
+    Chat,
+    Admin
 }

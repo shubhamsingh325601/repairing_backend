@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const app = require("./src/app");
+const { app } = require("./src/app");
 const keys = require("./src/config/keys");
 const { Category, User } = require("./src/models");
 const { seedCategories } = require("./src/constants/seedCategories");
@@ -19,9 +19,8 @@ mongoose
       await Category.insertMany(seedCategories);
       console.log('Seed data inserted');
     } 
-    
     app.listen(port, () => {
-      console.log(`Server running on http://localhost:${port}`);
+      console.log(`Server is running on port ${port}`);
     });
   })
   .catch((err) => {
