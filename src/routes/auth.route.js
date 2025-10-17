@@ -211,5 +211,8 @@ router.post("/agent/register", authController.registerAgent);
  *         description: Internal server error
  */
 router.post("/agent/login", authController.loginAgent);
+router.post("/email-verification", authController.emailVerification);
+router.post("/verify-otp",authController.verifyOTP);
+router.post("/send-otp",authController.sendOTP);
 
 module.exports = router;

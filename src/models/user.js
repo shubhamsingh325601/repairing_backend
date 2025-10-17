@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 const UserSchema = new mongoose.Schema({
   userName: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
-  name: { type: String, required: true },
-  phone: { type: String, required: true, unique: true },
-  address: { type: String, required: true },
-  password: { type: String, required: true },
+  name: { type: String},
+  phone: { type: String },
+  address: { type: String },
+  password: { type: String },
   resetToken: { type: String },
   resetTokenExpiry: { type: Date },
   skills: [String],
@@ -24,8 +24,8 @@ const UserSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'agent', 'admin'],
-    default: 'user'
+    enum: ['user', 'agent', 'admin',""],
+    default: ''
   },
   isDeleted: {
     type: Boolean,
