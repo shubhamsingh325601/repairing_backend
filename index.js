@@ -1,28 +1,19 @@
-const mongoose = require("mongoose");
-const { app } = require("./src/app");
-const keys = require("./src/config/keys");
-const { Category, User } = require("./src/models");
-const { seedCategories } = require("./src/constants/seedCategories");
-const { agents } = require("./src/constants/seedAgents");
+const { server } = require('./src/app');
+const mongoose = require('mongoose');
+const { connectionString } = require('./src/config/keys');
 
-const port = keys.port;
-const connectionString = keys.connectionString;
-
-// DATABASE connection
-mongoose
-  .connect(connectionString)
-  .then(async () => {
-    console.log("MongoDB connected");
-   
-    const count = await Category.countDocuments();
-    if (count !== seedCategories.length) {
-      await Category.insertMany(seedCategories);
-      console.log('Seed data inserted');
-    } 
-    app.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
+// Connect to MongoDB
+mongoose.connect(connectionString)
+  .then(() => {
+    console.log('MongoDB Connected');
+    
+    // Start server
+    const PORT = process.env.PORT || 5000;
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
     });
   })
-  .catch((err) => {
-    console.error("MongoDB connection error:", err.message);
-});
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+  });
