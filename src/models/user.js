@@ -12,8 +12,6 @@ const UserSchema = new mongoose.Schema({
   skills: [String],
   isAvailable: { type: Boolean, default: true },
   rating: { type: Number, default: 0 },
-  stripeCustomerId: { type: String, unique: true, sparse: true },
-  stripeSessionId: { type: String, unique: true, sparse: true },
   fcmToken: { type: String },
 
   imageUrl: { type: String, default: 'https://example.com/default-avatar.png' }, // Default avatar URL

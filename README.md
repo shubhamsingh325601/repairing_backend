@@ -36,9 +36,9 @@ This is the backend API for a Home Appliance Repairing App, built with Node.js, 
 ## API Documentation
 
 ### Beautiful Landing Page
-When you visit `http://localhost:5000`, you'll see a **stunning, modern landing page** with:
+When you visit `http://localhost:5001`, you'll see a **stunning, modern landing page** with:
 - 🎨 **Gradient background** with beautiful colors
-- 🏠 **App branding** and feature highlights
+-  **App branding** and feature highlights
 - 📚 **Direct link** to API documentation
 - ✨ **Feature showcase** with icons and descriptions
 - 📱 **Responsive design** for all devices
@@ -47,7 +47,7 @@ When you visit `http://localhost:5000`, you'll see a **stunning, modern landing 
 Your API comes with comprehensive, interactive documentation powered by Swagger/OpenAPI 3.0 with **beautiful, modern styling inspired by FastAPI**.
 
 **Access the documentation:**
-- **URL**: `http://localhost:5000/api-docs`
+- **URL**: `http://localhost:5001/api-docs`
 - **Features**:
   - ✨ **Beautiful, modern UI** with gradient backgrounds and smooth animations
   - 🎨 **FastAPI-inspired design** with custom colors and typography
@@ -142,7 +142,7 @@ To use the real-time chat:
 
 ```javascript
 // Connect to Socket.io
-const socket = io('http://localhost:5000');
+const socket = io('http://localhost:5001');
 
 // Join user room
 socket.emit('join', userId);

@@ -141,11 +141,15 @@ router.post("/login", authController.loginUser);
  *             required:
  *               - name
  *               - email
+ *               - userName
  *               - phone
  *               - password
  *               - address
  *               - skills
  *             properties:
+ *               userName:
+ *                 type: string
+ *                 description: Unique username
  *               name:
  *                 type: string
  *                 description: Agent full name

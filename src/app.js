@@ -4,7 +4,7 @@ const morgan = require("morgan");
 const path = require('path');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swagger.config');
-const { Auth, User, Category, Agent, Booking, Feedback, Payment, Comment, Chat, Admin } = require("./routes");
+const { Auth, Booking, Feedback, Payment, Chat, Admin } = require("./routes");
 const http = require('http');
 const socketIo = require('socket.io');
 
@@ -18,7 +18,17 @@ const io = socketIo(server, {
 });
 
 // Middlewares
-app.use(cors());
+// In app.js
+const corsOptions = {
+  origin: "*", // During development, allow all. In production, specify your frontend URL.
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  allowedHeaders: ["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(morgan("dev"));
 
@@ -27,23 +37,39 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Swagger Documentation with custom styling
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs, {
-  customCss: '.swagger-ui .topbar { display: none }',
-  customCssUrl: '/public/swagger-custom.css',
-  customSiteTitle: '🏠 Home Appliance Repair App API',
-  customfavIcon: '/favicon.ico',
+  customSiteTitle: 'Home Appliance Repair App API',
+
+  customCss: `
+    /* Hide the bulb icon */
+    .swagger-ui .topbar .topbar-wrapper .link img + svg,
+    .swagger-ui .topbar .topbar-wrapper .btn.authorize {
+      display: none !important;
+    }
+
+    .swagger-ui .topbar .topbar-wrapper {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: space-between !important;
+    }
+
+    /* Ensure topbar stays left aligned */
+    .swagger-ui .topbar-wrapper {
+      justify-content: flex-start !important;
+    }
+  `,
+
   swaggerOptions: {
-    docExpansion: 'none',
+    docExpansion: 'list',
     filter: true,
-    showRequestHeaders: true,
-    showCommonExtensions: true,
-    defaultModelsExpandDepth: 2,
-    defaultModelExpandDepth: 2,
-    displayRequestDuration: true,
-    tryItOutEnabled: true
-  },
-  explorer: true
+    displayRequestDuration: true
+  }
 }));
 
+
+
+// Global Route API
 // Global Route API
 app.get('/', (req, res) => {
   res.send(`
@@ -52,63 +78,83 @@ app.get('/', (req, res) => {
     <head>
       <title>Home Appliance Repair App API</title>
       <style>
+        /* Force no scroll and blue/white gradient */
         body { 
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
           margin: 0; 
-          padding: 40px; 
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 20px; 
+          background: linear-gradient(135deg, #002a48, #003d5b);
           color: white;
-          min-height: 100vh;
+          height: 100vh;
+          overflow: hidden; /* Hide scrollbar */
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .container { 
-          max-width: 800px; 
-          margin: 0 auto; 
+          width: 95%;
+          max-width: 1200px; 
           text-align: center;
         }
         h1 { 
-          font-size: 3em; 
-          margin-bottom: 20px; 
+          font-size: 2.5em; 
+          margin-bottom: 10px; 
           text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
-        p { 
-          font-size: 1.2em; 
-          margin-bottom: 30px; 
+        p.subtitle { 
+          font-size: 1.1em; 
+          margin-bottom: 25px; 
           opacity: 0.9;
         }
         .btn { 
           display: inline-block; 
           background: rgba(255,255,255,0.2); 
           color: white; 
-          padding: 15px 30px; 
+          padding: 12px 25px; 
           text-decoration: none; 
           border-radius: 25px; 
           font-weight: 600; 
           transition: all 0.3s ease;
-          border: 2px solid rgba(255,255,255,0.3);
+          margin-bottom: 30px;
         }
         .btn:hover { 
-          background: rgba(255,255,255,0.3); 
+          background: #003d5b; 
+          color: #fff;
           transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
-        .features {
-          margin-top: 40px;
+        /* Layout for 4 cards in 1 row */
+       .features {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          grid-template-columns: repeat(4, 1fr); /* Force 4 columns in 1 row */
           gap: 20px;
+          margin-top: 50px;
+          width: 100%;
+          justify-content: center;
         }
         .feature {
-          background: rgba(255,255,255,0.1);
-          padding: 20px;
-          border-radius: 15px;
+          background: rgba(255,255,255,0.08);
+          padding: 25px 15px;
+          border-radius: 20px;
           backdrop-filter: blur(10px);
+          border: 1px solid rgba(255,255,255,0.1);
+          transition: all 0.3s ease;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
         }
+        .feature:hover {
+          transform: scale(1.05);
+          background: rgba(255,255,255,0.15);
+        }
+        h3 { margin-top: 0; font-size: 1.2em; }
+        .feature p { font-size: 0.9em; margin-bottom: 0; opacity: 0.8; }
       </style>
     </head>
     <body>
       <div class="container">
-        <h1>🏠 Home Appliance Repair App</h1>
-        <p>A comprehensive backend API for home appliance repair services with real-time chat and admin features</p>
+        <h1> Home Appliance Repair App</h1>
+        <p class="subtitle">A comprehensive backend API for home appliance repair services with real-time chat and admin features</p>
         <a href="/api-docs" class="btn">📚 View API Documentation</a>
         
         <div class="features">
@@ -137,13 +183,9 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use("/api/Auth", Auth);
-app.use("/api/User", User);
-app.use("/api/Category", Category);
-app.use("/api/Agent", Agent);
 app.use("/api/Booking", Booking);
 app.use("/api/Feedback", Feedback);
 app.use("/api/Payment", Payment);
-app.use("/api/Comment", Comment);
 app.use("/api/Chat", Chat);
 app.use("/api/Admin", Admin);
 

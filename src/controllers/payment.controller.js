@@ -1,57 +1,43 @@
 const { successResponse, failedResponse, errorResponse } = require('../helpers/apiResponse');
-const Stripe = require('stripe');
-const { stripeSecretKey } = require('../config/keys');
 const { User } = require('../models');
-const stripe = Stripe(stripeSecretKey);
 const razorpay = require('../config/razorpay.config');
+const crypto = require('crypto');
+const { razorpayKeySecret } = require('../config/keys');
 
 /**
  * @method POST
- * Creates a Stripe PaymentIntent for a given amount and currency
+ * Create a generic Razorpay order
  */
 exports.createPaymentIntent = async (req, res) => {
   try {
-    const { email,role,amount, currency = 'usd', metadata = {} } = req.body;
-    // Validate role
-    if (!email || !role || !amount) {
-      return failedResponse(res, 'Email, role, and amount are required', 400);
+    const { amount, currency = 'INR', receipt, notes, email, role } = req.body;
+
+    if (!amount) {
+      return failedResponse(res, 'Amount is required', 400);
     }
-    const application = await findUserByEmail(email,role);
-    if (!application) {
-      return failedResponse(res, `${role} not found`, 404);
+
+    let user = null;
+    if (email && role) {
+      user = await User.findOne({ email, role });
+      if (!user) {
+        return failedResponse(res, `${role} not found`, 404);
+      }
     }
-    let customer;
-    if (!application || !application.stripeCustomerId) {
-      customer = await stripe.customers.create({
-        email:email,
-        name: application.name,
-        phone: application.phone,
-        address: {
-          line1: application.address,
-        },
-        metadata: {
-          role: role,
-        },
-      });
-      application.stripeCustomerId = customer.id;
-    } else {
-      customer = await stripe.customers.retrieve(application.stripeCustomerId);
-    }
-    const session = await stripe.checkout.sessions.create({
-      customer: customer.id,
-      mode: "payment",
-      line_items: [
-        {
-          price: 'price_1RVF92QM2HraHdurQxZBLosH',
-          quantity: 1,
-        },
-      ],
-      success_url: "http://yoursite.com/order/success?session_id={CHECKOUT_SESSION_ID}",
-      cancel_url: `http://localhost:5001/signup/subscribe?role=business_partner`,
+
+    const order = await razorpay.orders.create({
+      amount: Math.round(amount * 100),
+      currency,
+      receipt: receipt || `receipt_${Date.now()}`,
+      payment_capture: 1,
+      notes: notes || {}
     });
-    application.stripeSessionId = session.id;
-    await application.save();
-    return successResponse(res, { sessionId: session.id }, 'Stripe session created');
+
+    return successResponse(res, {
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      key: process.env.RAZORPAY_KEY_ID
+    }, 'Order created successfully');
   } catch (err) {
     return errorResponse(res, err, 'Error creating payment intent');
   }
@@ -59,71 +45,116 @@ exports.createPaymentIntent = async (req, res) => {
 
 /**
  * @method POST
- * Optional: Confirms the PaymentIntent if using manual confirmation flow
+ * Verify Razorpay payment signature
  */
-exports.confirmPayment = async (req, res) => {
+exports.verifyPayment = async (req, res) => {
   try {
-    const { paymentIntentId } = req.body;
-    const confirmed = await stripe.paymentIntents.confirm(paymentIntentId);
-    return successResponse(res, confirmed, 'Payment confirmed');
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return failedResponse(res, 'Missing payment verification data', 400);
+    }
+
+    const sign = razorpay_order_id + '|' + razorpay_payment_id;
+
+    const expectedSign = crypto
+      .createHmac('sha256', razorpayKeySecret)
+      .update(sign)
+      .digest('hex');
+
+    if (razorpay_signature !== expectedSign) {
+      return failedResponse(res, 'Payment verification failed', 400);
+    }
+
+    return successResponse(res, {
+      orderId: razorpay_order_id,
+      paymentId: razorpay_payment_id,
+      status: 'verified'
+    }, 'Payment verified successfully');
+
   } catch (err) {
-    return errorResponse(res, err, 'Error confirming payment');
+    return errorResponse(res, err, 'Error verifying payment');
   }
 };
 
 /**
  * @method POST
- * Initiates a Razorpay order for UPI payments.
+ * Create a UPI-only order
  */
 exports.createUpiPayment = async (req, res) => {
   try {
     const { amount, currency = 'INR', receipt, notes } = req.body;
-    const options = {
-      amount: Math.round(amount * 100), // Razorpay expects paise
+
+    if (!amount) return failedResponse(res, 'Amount is required', 400);
+
+    const order = await razorpay.orders.create({
+      amount: Math.round(amount * 100),
       currency,
-      receipt,
+      receipt: receipt || `upi_${Date.now()}`,
       payment_capture: 1,
-      notes,
-      method: 'upi',
-    };
-    const order = await razorpay.orders.create(options);
-    return successResponse(res, order, 'Razorpay UPI order created', 201);
+      notes: { ...notes, method: 'upi' }
+    });
+
+    return successResponse(res, {
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      key: process.env.RAZORPAY_KEY_ID
+    }, 'UPI order created successfully');
+
   } catch (err) {
-    return errorResponse(res, err, 'Error creating Razorpay UPI order');
+    return errorResponse(res, err, 'Error creating UPI order');
   }
 };
 
-
-async function findUserByEmail(email, role) {
-  if (!email || !role) return null;
-
-  const Model = role === 'User' ? User : Agent;
-  return await Model.findOne({ email });
-}
-
-async function createCustomer(application, role) {
+/**
+ * @method POST
+ * Create a specific UPI app order
+ */
+const createSpecificUpiOrder = async (req, res, app) => {
   try {
-    let customer;
+    const { amount, currency = 'INR', receipt, notes } = req.body;
 
-    if (!application.stripeCustomerId) {
-      customer = await stripe.customers.create({
-        email: application.email,
-        name: application.name || '',
-        phone: application.phone || '',
-        address: {
-          line1: application.address || '',
-        },
-        metadata: { role },
-      });
+    if (!amount) return failedResponse(res, 'Amount is required', 400);
 
-      application.stripeCustomerId = customer.id;
-    } else {
-      customer = await stripe.customers.retrieve(application.stripeCustomerId);
-    }
+    const order = await razorpay.orders.create({
+      amount: Math.round(amount * 100),
+      currency,
+      receipt: receipt || `${app}_${Date.now()}`,
+      payment_capture: 1,
+      notes: { ...notes, upiApp: app }
+    });
 
-    return customer;
-  } catch (error) {
-    console.error('Error in createCustomer:', error);
-    throw new Error('Stripe customer creation failed');
+    return successResponse(res, {
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      upiApp: app,
+      key: process.env.RAZORPAY_KEY_ID
+    }, `${app} UPI order created`);
+
+  } catch (err) {
+    return errorResponse(res, err, `Error creating ${app} order`);
   }
-}
+};
+
+exports.createGooglePayOrder = (req, res) => createSpecificUpiOrder(req, res, 'google_pay');
+exports.createPhonePeOrder = (req, res) => createSpecificUpiOrder(req, res, 'phonepe');
+exports.createPaytmOrder = (req, res) => createSpecificUpiOrder(req, res, 'paytm');
+
+/**
+ * @method GET
+ * Fetch Razorpay order details
+ */
+exports.getPaymentDetails = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    if (!orderId) return failedResponse(res, 'Order ID required', 400);
+
+    const order = await razorpay.orders.fetch(orderId);
+    return successResponse(res, order, 'Payment details fetched');
+
+  } catch (err) {
+    return errorResponse(res, err, 'Error fetching payment details');
+  }
+};

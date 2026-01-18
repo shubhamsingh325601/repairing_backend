@@ -1,13 +1,12 @@
-// routes/paymentRoutes.js
 const express = require('express');
 const router = express.Router();
 const paymentController = require('../controllers/payment.controller');
 
 /**
  * @swagger
- * /api/Payment/create-payment-intent:
+ * /api/payment/create-payment-intent:
  *   post:
- *     summary: Create a Stripe PaymentIntent
+ *     summary: Create Razorpay order for normal payments
  *     tags: [Payments]
  *     requestBody:
  *       required: true
@@ -16,62 +15,36 @@ const paymentController = require('../controllers/payment.controller');
  *           schema:
  *             type: object
  *             required:
- *               - email
- *               - role
  *               - amount
  *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 description: User email address
- *               role:
- *                 type: string
- *                 enum: [User, Agent]
- *                 description: User role
  *               amount:
  *                 type: number
- *                 description: Payment amount
+ *                 example: 500
  *               currency:
  *                 type: string
- *                 default: usd
- *                 description: Payment currency
- *               metadata:
+ *                 example: INR
+ *               receipt:
+ *                 type: string
+ *               notes:
  *                 type: object
- *                 description: Additional payment metadata
+ *               email:
+ *                 type: string
+ *                 example: customer@email.com
+ *               role:
+ *                 type: string
+ *                 example: customer
  *     responses:
  *       200:
- *         description: Stripe session created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 isSuccess:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Stripe session created
- *                 data:
- *                   type: object
- *                   properties:
- *                     sessionId:
- *                       type: string
- *                       description: Stripe checkout session ID
- *       400:
- *         description: Bad request - missing required fields
- *       404:
- *         description: User not found
- *       500:
- *         description: Internal server error
+ *         description: Order created successfully
  */
 router.post('/create-payment-intent', paymentController.createPaymentIntent);
 
+
 /**
  * @swagger
- * /api/Payment/confirm-payment:
+ * /api/payment/verify-payment:
  *   post:
- *     summary: Confirm a PaymentIntent (optional)
+ *     summary: Verify Razorpay payment signature
  *     tags: [Payments]
  *     requestBody:
  *       required: true
@@ -80,38 +53,28 @@ router.post('/create-payment-intent', paymentController.createPaymentIntent);
  *           schema:
  *             type: object
  *             required:
- *               - paymentIntentId
+ *               - razorpay_order_id
+ *               - razorpay_payment_id
+ *               - razorpay_signature
  *             properties:
- *               paymentIntentId:
+ *               razorpay_order_id:
  *                 type: string
- *                 description: Stripe PaymentIntent ID
+ *               razorpay_payment_id:
+ *                 type: string
+ *               razorpay_signature:
+ *                 type: string
  *     responses:
  *       200:
- *         description: Payment confirmed successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 isSuccess:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Payment confirmed
- *                 data:
- *                   type: object
- *                   description: Confirmed PaymentIntent object
- *       500:
- *         description: Internal server error
+ *         description: Payment verified successfully
  */
-router.post('/confirm-payment', paymentController.confirmPayment);
+router.post('/verify-payment', paymentController.verifyPayment);
+
 
 /**
  * @swagger
- * /api/Payment/upi:
+ * /api/payment/upi:
  *   post:
- *     summary: Initiate UPI payment via Razorpay
+ *     summary: Create generic UPI payment order
  *     tags: [Payments]
  *     requestBody:
  *       required: true
@@ -124,37 +87,63 @@ router.post('/confirm-payment', paymentController.confirmPayment);
  *             properties:
  *               amount:
  *                 type: number
- *                 description: Payment amount in INR
- *               currency:
+ *                 example: 500
+ *               upiApp:
  *                 type: string
- *                 default: INR
- *                 description: Payment currency
- *               receipt:
- *                 type: string
- *                 description: Receipt ID for the payment
- *               notes:
- *                 type: object
- *                 description: Additional payment notes
+ *                 example: google_pay
  *     responses:
  *       201:
- *         description: Razorpay UPI order created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 isSuccess:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Razorpay UPI order created
- *                 data:
- *                   type: object
- *                   description: Razorpay order object
- *       500:
- *         description: Internal server error
+ *         description: UPI order created successfully
  */
 router.post('/upi', paymentController.createUpiPayment);
+
+
+/**
+ * @swagger
+ * /api/payment/upi/google-pay:
+ *   post:
+ *     summary: Create Google Pay UPI order
+ *     tags: [Payments]
+ */
+router.post('/upi/google-pay', paymentController.createGooglePayOrder);
+
+
+/**
+ * @swagger
+ * /api/payment/upi/phonepe:
+ *   post:
+ *     summary: Create PhonePe UPI order
+ *     tags: [Payments]
+ */
+router.post('/upi/phonepe', paymentController.createPhonePeOrder);
+
+
+/**
+ * @swagger
+ * /api/payment/upi/paytm:
+ *   post:
+ *     summary: Create Paytm UPI order
+ *     tags: [Payments]
+ */
+router.post('/upi/paytm', paymentController.createPaytmOrder);
+
+
+/**
+ * @swagger
+ * /api/payment/{orderId}:
+ *   get:
+ *     summary: Get payment details using order ID
+ *     tags: [Payments]
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Payment details retrieved
+ */
+router.get('/:orderId', paymentController.getPaymentDetails);
 
 module.exports = router;

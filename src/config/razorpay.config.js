@@ -1,8 +1,9 @@
 const Razorpay = require('razorpay');
+const { razorpayKeyId, razorpayKeySecret } = require('./keys');
 
 const razorpay = new Razorpay({
-  key_id: 'rzp_live_AUsxYOQkeLo164',
-  key_secret: '4y6AL6pKtSYeX5lk3vu3ntvM',
+  key_id: razorpayKeyId,
+  key_secret: razorpayKeySecret,
 });
 
 module.exports = razorpay; 

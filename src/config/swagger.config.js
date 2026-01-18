@@ -1,29 +1,18 @@
 const swaggerJsdoc = require('swagger-jsdoc');
+const { apiUrl, serverType } = require('./keys');
 
 const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: '🏠 Home Appliance Repair App API',
+      title: ' Home Appliance Repair App API',
       version: '1.0.0',
-      description: 'A comprehensive API for home appliance repair services with real-time chat and admin features',
-      contact: {
-        name: 'API Support',
-        email: 'support@repairapp.com'
-      },
-      license: {
-        name: 'MIT',
-        url: 'https://opensource.org/licenses/MIT'
-      }
+      description: 'A comprehensive API for home appliance repair services with real-time chat and admin features'
     },
     servers: [
       {
-        url: 'http://localhost:5000',
-        description: '🚀 Development server'
-      },
-      {
-        url: 'https://api.repairapp.com',
-        description: '🌐 Production server'
+        url: apiUrl || 'http://localhost:5001',
+        description: `🚀 ${serverType} server`
       }
     ],
     components: {
@@ -104,16 +93,11 @@ const options = {
       }
     },
     tags: [
-      { name: '🔐 Authentication', description: 'User and agent authentication endpoints' },
-      { name: '👥 Users', description: 'User management endpoints' },
-      { name: '🔧 Agents', description: 'Agent management endpoints' },
-      { name: '📅 Bookings', description: 'Booking management endpoints' },
-      { name: '💬 Chat', description: 'Real-time chat endpoints' },
-      { name: '🛠️ Services', description: 'Service catalog endpoints' },
-      { name: '💳 Payments', description: 'Payment processing endpoints' },
-      { name: '⚙️ Admin', description: 'Admin-only endpoints' },
-      { name: '💭 Comments', description: 'Comment system endpoints' },
-      { name: '📂 Categories', description: 'Category management endpoints' }
+      { name: 'Authentication', description: 'User and agent authentication endpoints' },
+      { name: 'Bookings', description: 'Booking management endpoints' },
+      { name: 'Chat', description: 'Real-time chat endpoints' },
+      { name: 'Payments', description: 'Payment processing endpoints' },
+      { name: 'Admin', description: 'Admin-only endpoints' },
     ]
   },
   apis: ['./src/routes/*.js', './src/controllers/*.js'], // Path to the API docs

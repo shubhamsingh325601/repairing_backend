@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken")
 const { successResponse, failedResponse, errorResponse } = require("../helpers/apiResponse")
 const { encryptPassword, passwordCompare } = require('../helpers/encyptDecrypt')
-const { User,Agent } = require("../models")
+const { User } = require("../models")
 const { jwtSecretKey, senderEmail } = require("../config/keys")
 const { transporter } = require("../config/email.config")
 
@@ -102,27 +102,47 @@ exports.loginUser = async (req, res) => {
  */
 exports.registerAgent = async (req, res) => {
   try {
-    const { name, email, phone, password, address, skills } = req.body;
+    const { userName, name, email, phone, password, address, skills } = req.body;
 
-    const existingAgent = await Agent.findOne({ $or: [{ email }, { phone }] });
+    const existingAgent = await User.findOne({ $or: [{ email }, { phone }, { userName }], role: 'agent' });
     if (existingAgent) {
-      return failedResponse(res, "Email or phone number already registered.", 400);
+      return failedResponse(res, "Email, phone number, or username already registered.", 400);
     }
 
     const hashedPassword = await encryptPassword(password);
 
-    const newAgent = new Agent({
+    const newAgent = new User({
+      userName,
       name,
       email,
       phone,
       password: hashedPassword,
       address,
       skills,
+      role: 'agent'
     });
 
     await newAgent.save();
 
-    return successResponse(res, null, "Agent registered successfully.", 201);
+    // 4. Generate JWT token
+    const token = jwt.sign(
+      { id: newAgent._id, role: newAgent.role },
+      jwtSecretKey,
+      { expiresIn: "7d" }
+    );
+
+    // 5. Prepare user data to return (excluding password)
+    const agentData = {
+      id: newAgent._id,
+      userName: newAgent.userName,
+      email: newAgent.email,
+      name: newAgent.name,
+      phone: newAgent.phone,
+      address: newAgent.address,
+      role: "agent"
+    };
+
+    return successResponse(res, [{ application: agentData, token }], "Agent registered successfully.", 201);
   } catch (err) {
     return errorResponse(res, err, "Agent registration failed.");
   }
@@ -136,13 +156,13 @@ exports.loginAgent = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const existingAgent = await Agent.findOne({ email });
+    const existingAgent = await User.findOne({ email, role: 'agent' });
     if (!existingAgent) return failedResponse(res, "Agent not found.", 404);
 
-    const isMatch = await comparePassword(password, existingAgent.password);
+    const isMatch = await passwordCompare(password, existingAgent.password);
     if (!isMatch) return failedResponse(res, "Invalid credentials.", 401);
 
-    const token = jwt.sign({ id: existingAgent._id, role: "agent" }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    const token = jwt.sign({ id: existingAgent._id, role: "agent" }, jwtSecretKey, { expiresIn: "7d" });
 
     const agentData = {
       id: existingAgent._id,
@@ -155,7 +175,7 @@ exports.loginAgent = async (req, res) => {
       rating: existingAgent.rating
     };
 
-  
+   return successResponse(res, { token, user: agentData }, "Login successful.");
   } catch (err) {
     return errorResponse(res, err, "Login failed.");
   }
