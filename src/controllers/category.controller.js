@@ -3,11 +3,11 @@ const {Category} = require('../models');
 
 /**
  * @method GET
- * Returns all active categories
+ * Returns all categories
  */
 exports.getAllCategories = async (req, res) => {
   try {
-    const categories = await Category.find({ isActive: true });
+    const categories = await Category.find({});
     return successResponse(res, categories, "Categories fetched successfully");
   } catch (err) {
     return errorResponse(res, err, "Error fetching categories");

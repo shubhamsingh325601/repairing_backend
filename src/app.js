@@ -4,7 +4,7 @@ const morgan = require("morgan");
 const path = require('path');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swagger.config');
-const { Auth, Booking, Feedback, Payment, Chat, Admin } = require("./routes");
+const { Auth, Booking, Feedback, Payment, Chat, Admin, Agent, Category } = require("./routes");
 const http = require('http');
 const socketIo = require('socket.io');
 
@@ -188,6 +188,8 @@ app.use("/api/Feedback", Feedback);
 app.use("/api/Payment", Payment);
 app.use("/api/Chat", Chat);
 app.use("/api/Admin", Admin);
+app.use("/api/Agent", Agent);
+app.use("/api/Category", Category);
 
 // Socket.io connection handling
 io.on('connection', (socket) => {

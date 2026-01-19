@@ -3,6 +3,7 @@ const Booking = require("./booking.controller");
 const Feedback = require("./feedback.controller");
 const Payment = require("./payment.controller");
 const Category = require("./category.controller");
+const Agent = require("./agent.controller");
 
 
 module.exports = {
@@ -10,5 +11,6 @@ module.exports = {
     Booking,
     Feedback,
     Payment,
-    Category
+    Category,
+    Agent
 }
